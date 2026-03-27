@@ -262,6 +262,7 @@ app.get("/", (_req, res) => {
       gap: 12px;
       flex-wrap: wrap;
       margin-top: 16px;
+      justify-content: center;
     }
 
     button {
@@ -280,12 +281,9 @@ app.get("/", (_req, res) => {
       min-width: 180px;
     }
 
-    .btn-primary:hover { transform: translateY(-1px); }
-
     .btn-primary:disabled {
       opacity: .45;
       cursor: not-allowed;
-      transform: none;
     }
 
     .btn-secondary {
@@ -539,7 +537,7 @@ app.get("/", (_req, res) => {
         <div class="upload-icon">📸</div>
         <h2>Upload listing screenshots</h2>
         <p>Drop screenshots here or tap to upload. Use price, condition, and detail photos for the best analysis.</p>
-        <div class="btn-row" style="justify-content:center;">
+        <div class="btn-row">
           <button class="btn-secondary" id="pickBtn">Choose images</button>
           <button class="btn-primary" id="analyzeBtn" disabled>Analyze deal</button>
         </div>
@@ -603,9 +601,7 @@ app.get("/", (_req, res) => {
 
         <div class="card section">
           <h3>Extra details</h3>
-          <div class="list-box">
-            <ul id="detailsList"></ul>
-          </div>
+          <div class="list-box"><ul id="detailsList"></ul></div>
         </div>
       </div>
 
@@ -800,7 +796,7 @@ app.get("/", (_req, res) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "claude-sonnet-4-20250514",
+            model: "claude-3-5-sonnet-20240620",
             max_tokens: 1200,
             system: SYSTEM_PROMPT,
             messages: [
@@ -823,25 +819,25 @@ app.get("/", (_req, res) => {
 
         let rawText = "";
 
-if (data.content && data.content.length > 0) {
-  rawText = data.content[0].text || "";
-}
+        if (data.content && data.content.length > 0) {
+          rawText = data.content[0].text || "";
+        }
 
-rawText = rawText
-  .replace(/```json/gi, "")
-  .replace(/```/g, "")
-  .trim();
+        rawText = rawText
+          .replace(/```json/gi, "")
+          .replace(/```/g, "")
+          .trim();
 
-let parsed;
+        let parsed;
 
-try {
-  parsed = JSON.parse(rawText);
-} catch (e) {
-  console.error("Parse error:", rawText);
-  showError("AI returned a bad response. Check Railway logs.");
-  loadingBox.style.display = "none";
-  return;
-}
+        try {
+          parsed = JSON.parse(rawText);
+        } catch (e) {
+          console.error("Parse error:", rawText);
+          showError("AI returned a bad response. Check Railway logs.");
+          loadingBox.style.display = "none";
+          return;
+        }
 
         verdictText.textContent = parsed.verdict || "SKIP";
         reasonText.textContent = parsed.reasoning || "No reasoning returned.";
