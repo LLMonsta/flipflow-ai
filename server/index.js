@@ -821,14 +821,27 @@ app.get("/", (_req, res) => {
         scansLeft = data.scansLeft ?? scansLeft;
         updateTopScans();
 
-        const raw = (data.content || [])
-          .map((c) => c.text || "")
-          .join("")
-          .replace(/\\\`\\\`\\\`json/gi, "")
-          .replace(/\\\`\\\`\\\`/g, "")
-          .trim();
+        let rawText = "";
 
-        const parsed = JSON.parse(raw);
+if (data.content && data.content.length > 0) {
+  rawText = data.content[0].text || "";
+}
+
+rawText = rawText
+  .replace(/```json/gi, "")
+  .replace(/```/g, "")
+  .trim();
+
+let parsed;
+
+try {
+  parsed = JSON.parse(rawText);
+} catch (e) {
+  console.error("Parse error:", rawText);
+  showError("AI returned a bad response. Check Railway logs.");
+  loadingBox.style.display = "none";
+  return;
+}
 
         verdictText.textContent = parsed.verdict || "SKIP";
         reasonText.textContent = parsed.reasoning || "No reasoning returned.";
