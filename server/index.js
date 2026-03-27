@@ -82,7 +82,27 @@ app.post("/analyze", async (req, res) => {
 
 // Basic home route
 app.get("/", (req, res) => {
-  res.send("FlipFlow AI is running 🚀");
+  res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FlipFlow AI</title>
+</head>
+<body style="background:black;color:white;text-align:center;padding-top:100px;font-family:sans-serif;">
+  <h1>FlipFlow AI 🚀</h1>
+  <p>Your app is LIVE</p>
+  <button onclick="test()">Test API</button>
+
+  <script>
+    async function test() {
+      const res = await fetch('/scans-left');
+      const data = await res.json();
+      alert("Scans left: " + data.scansLeft);
+    }
+  </script>
+</body>
+</html>
+  `);
 });
 
 // Start server
