@@ -231,14 +231,6 @@ app.get("/", (_req, res) => {
       border-radius: 20px;
       padding: 28px;
       text-align: center;
-      cursor: pointer;
-      transition: .2s ease;
-    }
-
-    .dropzone:hover {
-      transform: translateY(-1px);
-      border-color: #4b5d82;
-      background: linear-gradient(180deg, rgba(90,167,255,.09), rgba(37,211,102,.06));
     }
 
     .dropzone h2 {
@@ -533,10 +525,10 @@ app.get("/", (_req, res) => {
     </div>
 
     <div class="card uploader">
-      <div class="dropzone" id="dropzone">
+      <div class="dropzone">
         <div class="upload-icon">📸</div>
         <h2>Upload listing screenshots</h2>
-        <p>Drop screenshots here or tap to upload. Use price, condition, and detail photos for the best analysis.</p>
+        <p>Tap to upload. Use price, condition, and detail photos for the best analysis.</p>
         <div class="btn-row">
           <button class="btn-secondary" id="pickBtn">Choose images</button>
           <button class="btn-primary" id="analyzeBtn" disabled>Analyze deal</button>
@@ -546,7 +538,6 @@ app.get("/", (_req, res) => {
 
       <div class="meta" id="metaText">No screenshots selected yet.</div>
       <div class="thumbs" id="thumbs"></div>
-
       <div class="error" id="errorBox"></div>
 
       <div class="loading" id="loadingBox">
@@ -622,7 +613,6 @@ app.get("/", (_req, res) => {
     const resultsWrap = document.getElementById("resultsWrap");
     const errorBox = document.getElementById("errorBox");
     const scansLeftTop = document.getElementById("scansLeftTop");
-    const dropzone = document.getElementById("dropzone");
 
     const verdictText = document.getElementById("verdictText");
     const riskBadge = document.getElementById("riskBadge");
@@ -700,8 +690,7 @@ app.get("/", (_req, res) => {
           resolve({
             url: URL.createObjectURL(file),
             base64: reader.result.split(",")[1],
-            type: file.type || "image/jpeg",
-            name: file.name
+            type: file.type || "image/jpeg"
           });
         };
         reader.readAsDataURL(file);
@@ -724,15 +713,6 @@ app.get("/", (_req, res) => {
     fileInput.addEventListener("change", async (e) => {
       await addFiles(e.target.files);
       e.target.value = "";
-    });
-
-    dropzone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-    });
-
-    dropzone.addEventListener("drop", async (e) => {
-      e.preventDefault();
-      await addFiles(e.dataTransfer.files);
     });
 
     copyBtn.addEventListener("click", async () => {
@@ -761,13 +741,9 @@ app.get("/", (_req, res) => {
       }
 
       riskBadge.textContent = "Risk: " + riskLevel;
-      if (riskLevel === "Low") {
-        riskBadge.style.color = "#25d366";
-      } else if (riskLevel === "Medium") {
-        riskBadge.style.color = "#ffb020";
-      } else {
-        riskBadge.style.color = "#ff5d5d";
-      }
+      if (riskLevel === "Low") riskBadge.style.color = "#25d366";
+      else if (riskLevel === "Medium") riskBadge.style.color = "#ffb020";
+      else riskBadge.style.color = "#ff5d5d";
     }
 
     analyzeBtn.addEventListener("click", async () => {
@@ -799,12 +775,7 @@ app.get("/", (_req, res) => {
             model: "claude-3-5-sonnet-20240620",
             max_tokens: 1200,
             system: SYSTEM_PROMPT,
-            messages: [
-              {
-                role: "user",
-                content
-              }
-            ]
+            messages: [{ role: "user", content }]
           })
         });
 
@@ -818,18 +789,13 @@ app.get("/", (_req, res) => {
         updateTopScans();
 
         let rawText = "";
-
         if (data.content && data.content.length > 0) {
           rawText = data.content[0].text || "";
         }
 
-        rawText = rawText
-          .replace(/```json/gi, "")
-          .replace(/```/g, "")
-          .trim();
+        rawText = rawText.trim();
 
         let parsed;
-
         try {
           parsed = JSON.parse(rawText);
         } catch (e) {
